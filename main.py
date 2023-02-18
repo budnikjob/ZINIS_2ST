@@ -1,6 +1,7 @@
 from tkinter import *
 import time
 from itertools import cycle
+from matplotlib import pyplot as plt
 alp = 'АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ'
 root = Tk()
 root.title("Лабораторная работа №2")
@@ -79,7 +80,6 @@ def main(event):
             return res
         return wrapped
 
-
     def time_of_function3(function):
         def wrapped(*args):
             start_time = time.perf_counter_ns()
@@ -87,7 +87,6 @@ def main(event):
             time_viz_1['text'] = f"{(time.perf_counter_ns() - start_time)} мс"
             return res
         return wrapped
-
 
     def time_of_function4(function):
         def wrapped(*args):
@@ -116,12 +115,46 @@ def main(event):
     def affine_encrypt(text, key):
         return ''.join([chr(((key[0] * (ord(t) - ord('А')) + key[1]) % 33)
                             + ord('А')) for t in text.upper().replace(' ', '')])
+
+
+
+
+
+
     out_en_viz['text'] = encode_vijn(b, c)
     encode_viz = encode_vijn(b, c)
     out_dec_viz['text'] = decode_vijn(encode_viz, c)
     affine_encrypted_text = affine_encrypt(a, key)
     Encrypt_output['text'] = affine_encrypted_text
     Decrypted_output['text'] = affine_decrypt(affine_encrypted_text, key)
+
+    txt_en_cez = list(affine_encrypted_text)
+    n_bin1_cez = len(set(txt_en_cez))
+    s1 = plt.hist(txt_en_cez, bins=n_bin1_cez)
+    plt.rcParams['patch.force_edgecolor'] = True
+    plt.show()
+    txt_de_cez = list(affine_decrypt(affine_encrypted_text, key))
+    n_bin2_cez = len(set(txt_de_cez))
+    s2 = plt.hist(txt_de_cez, bins=n_bin2_cez)
+
+    plt.rcParams['patch.force_edgecolor'] = True
+    plt.show()
+
+
+    txt_en_viz = list(encode_vijn(b, c))
+    n_bin1_viz = len(set(txt_en_viz))
+    v1 = plt.hist(txt_en_viz, bins=n_bin1_viz)
+    plt.rcParams['patch.force_edgecolor'] = True
+    plt.show()
+    txt_de_viz = list(decode_vijn(encode_viz, c))
+    n_bin2_viz = len(set(txt_de_viz))
+    v2 = plt.hist(txt_de_viz, bins=n_bin2_viz)
+
+    plt.rcParams['patch.force_edgecolor'] = True
+    plt.show()
+
+
+
 
 ok_button1.bind('<Button-1>', main)
 label_NAME_CEZ.grid(row=0, column = 1)
