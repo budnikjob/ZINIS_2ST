@@ -2,6 +2,10 @@ from tkinter import *
 import time
 from itertools import cycle
 from matplotlib import pyplot as plt
+from tkinter import ttk
+from tkinter import filedialog
+
+
 alp = 'АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ'
 root = Tk()
 root.title("Лабораторная работа №2")
@@ -115,11 +119,6 @@ def main(event):
     def affine_encrypt(text, key):
         return ''.join([chr(((key[0] * (ord(t) - ord('А')) + key[1]) % 33)
                             + ord('А')) for t in text.upper().replace(' ', '')])
-
-
-
-
-
 
     out_en_viz['text'] = encode_vijn(b, c)
     encode_viz = encode_vijn(b, c)
