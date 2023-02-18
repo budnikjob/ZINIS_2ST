@@ -34,6 +34,10 @@ out_en_viz =  Label()
 dec_text_1_viz = Label(text="Расшифрованный текст:")
 out_dec_viz = Label()
 
+time_viz_1 = Label(text="Время шифрования")
+time_viz_2 = Label(text="Время дешифрования")
+
+
 
 Decrypted_output = Label()
 Encrypt_output = Label()
@@ -75,10 +79,30 @@ def main(event):
             return res
         return wrapped
 
+
+    def time_of_function3(function):
+        def wrapped(*args):
+            start_time = time.perf_counter_ns()
+            res = function(*args)
+            time_viz_1['text'] = f"{(time.perf_counter_ns() - start_time)} мс"
+            return res
+        return wrapped
+
+
+    def time_of_function4(function):
+        def wrapped(*args):
+            start_time = time.perf_counter_ns()
+            res = function(*args)
+            time_viz_2['text'] = f"{(time.perf_counter_ns() - start_time)} мс"
+            return res
+        return wrapped
+
+    @time_of_function3
     def encode_vijn(text, keytext):
         f = lambda arg: alp[(alp.index(arg[0]) + alp.index(arg[1]) % 33) % 33]
         return ''.join(map(f, zip(text, cycle(keytext))))
 
+    @time_of_function4
     def decode_vijn(coded_text, keytext):
         f = lambda arg: alp[alp.index(arg[0]) - alp.index(arg[1]) % 33]
         return ''.join(map(f, zip(coded_text, cycle(keytext))))
@@ -118,8 +142,9 @@ label_text_2.grid(row = 7, column=1)
 entry_text_2.grid(row=7, column=2)
 en_text_1_viz.grid(row=6, column=3)
 out_en_viz.grid(row=6, column=4)
-
+time_viz_1.grid(row=6,column=5)
 dec_text_1_viz.grid(row=7, column=3)
+time_viz_2.grid(row=7, column= 5)
 out_dec_viz.grid(row=7, column=4)
 
 
