@@ -30,7 +30,7 @@ def open_file(event):
     if filepath != "":
         with open(filepath, encoding='utf-8') as file:
             text = file.read().upper()
-            text = re.sub(r'[.,"\'-?:!;«»—\n]', '', text)
+            text = re.sub(r'[.,"\'-?:!;«»—\n ]', '', text)
             text = text.replace("Ё", "Е")
             text_editor1.delete("1.0", END)
             text_editor1.insert("1.0", text)
