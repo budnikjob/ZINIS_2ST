@@ -3,6 +3,8 @@ from tkinter import ttk
 from tkinter import filedialog
 import time
 from matplotlib import pyplot as plt
+import re
+
 
 # Help Function
 def egcd(a, b):
@@ -28,6 +30,7 @@ def open_file(event):
     if filepath != "":
         with open(filepath, encoding='utf-8') as file:
             text = file.read().upper()
+            text = re.sub(r'[.,"\'-?:!;«»—]', '', text)
             text_editor1.delete("1.0", END)
             text_editor1.insert("1.0", text)
             text_editor1.get(1.0, END)
