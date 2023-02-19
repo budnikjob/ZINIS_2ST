@@ -1,52 +1,12 @@
 from tkinter import *
-import time
-from itertools import cycle
-from matplotlib import pyplot as plt
 from tkinter import ttk
 from tkinter import filedialog
+import time
+from matplotlib import pyplot as plt
+import re
 
 
-alp = 'АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ'
-root = Tk()
-root.title("Лабораторная работа №2")
-root.geometry("600x200")
-root.resizable(width=False, height=False)
-
-value_textNEN = StringVar()
-
-value_textNEN_Viz = StringVar()
-value_KEY_Viz = StringVar()
-
-label_NAME_CEZ = Label(text="Шифр Цезаря")
-label1 = Label(text="Ваш текст:")
-entry1 = Entry(textvariable= value_textNEN)
-ok_button1 = Button(text="Найти")
-label2 = Label(text="Зашифрованный текст:")
-label2_1 = Label(text="Время шифрования")
-label3 = Label(text="Расшифрованный текст:")
-label3_1 = Label(text="Время расшифрования")
-
-
-label_NAME_VIZ = Label(text="Шифр Вижинера")
-label_text_1 = Label(text="Ваш текст:")
-entry_text_1 = Entry(textvariable=value_textNEN_Viz)
-label_text_2 = Label(text="Ваш ключ:")
-entry_text_2 = Entry(textvariable=value_KEY_Viz)
-
-en_text_1_viz = Label(text="Зашифрованный текст:")
-out_en_viz =  Label()
-
-dec_text_1_viz = Label(text="Расшифрованный текст:")
-out_dec_viz = Label()
-
-time_viz_1 = Label(text="Время шифрования")
-time_viz_2 = Label(text="Время дешифрования")
-
-
-
-Decrypted_output = Label()
-Encrypt_output = Label()
-
+# Help Function
 def egcd(a, b):
     x, y, u, v = 0, 1, 1, 0
     while a != 0:
@@ -56,6 +16,7 @@ def egcd(a, b):
     gcd = b
     return gcd, x, y
 
+
 def modinv(a, m):
     gcd, x, y = egcd(a, m)
     if gcd != 1:
@@ -63,122 +24,127 @@ def modinv(a, m):
     else:
         return x % m
 
+
+def open_file(event):
+    filepath = filedialog.askopenfilename()
+    if filepath != "":
+        with open(filepath, encoding='utf-8') as file:
+            text = file.read().upper()
+            text = re.sub(r'[.,"\'-?:!;«»—\n]', '', text)
+            text = text.replace("Ё", "Е")
+            text_editor1.delete("1.0", END)
+            text_editor1.insert("1.0", text)
+            text_editor1.get(1.0, END)
+
+
+
+root = Tk()
+root.title("Лабораторная работа №2")
+root.geometry("1300x900")
+tab_control = ttk.Notebook(root)
+
+# first page Affine Chipper
+tab1 = ttk.Frame(tab_control)
+tab_control.add(tab1, text="Шифр Цезаря")
+
+#Var
+value_a = StringVar()
+
+# Add Element on Layer First Page
+original_text_label = Label(tab1, text="Исходный текст:")
+encrypted_text_label = Label(tab1, text="Зашифрованный текст:")
+decrypted_text_label = Label(tab1, text="Расшифрованный текст:")
+time_enc_chipper = Label(tab1, text= "Время зашифрования")
+time_dec_chipper = Label(tab1, text= "Время расшифрования")
+text_editor1 = Text(tab1)
+open_file_button = Button(tab1, text="Открыть файл",)
+endec_button_affine = Button(tab1, text="Выполнить")
+text_editor2 = Text(tab1)
+text_editor3 = Text(tab1)
+
+def time_of_function1(function):
+    def wrapped(*args):
+        start_time = time.perf_counter_ns()
+        res = function(*args)
+        time_enc_chipper['text'] = f"{(time.perf_counter_ns() - start_time)} нс"
+        return res
+
+    return wrapped
+
+def time_of_function2(function):
+    def wrapped(*args):
+        start_time = time.perf_counter_ns()
+        res = function(*args)
+        time_dec_chipper['text'] = f"{(time.perf_counter_ns() - start_time)} нс"
+        return res
+
+    return wrapped
+
+
+@time_of_function1
+def affine_encrypt(text, key):
+    return ''.join([chr(((key[0] * (ord(t) - ord('А')) + key[1]) % 33) + ord('А')) for t in text.upper().replace(' ', '')])
+@time_of_function2
+def affine_decrypt(cipher, key):
+    return ''.join([chr(((modinv(key[0], 33) * (ord(c) - ord('А') - key[1])) % 33) + ord('А')) for c in cipher])
+
+
+# Main Function
 def main(event):
-    a = value_textNEN.get().upper()
-    b = value_textNEN_Viz.get().upper()
-    c = value_KEY_Viz.get().upper()
-    print(a)
     key = [7, 10]
-    def time_of_function1(function):
-        def wrapped(*args):
-            start_time = time.perf_counter_ns()
-            res = function(*args)
-            label3_1['text'] = f"{(time.perf_counter_ns() - start_time)} мс"
-            return res
-        return wrapped
-    def time_of_function2(function):
-        def wrapped(*args):
-            start_time = time.perf_counter_ns()
-            res = function(*args)
-            label2_1['text'] = f"{(time.perf_counter_ns() - start_time)} мс"
-            return res
-        return wrapped
+    def get_text():
+       return text_editor1.get(1.0, END).upper()
 
-    def time_of_function3(function):
-        def wrapped(*args):
-            start_time = time.perf_counter_ns()
-            res = function(*args)
-            time_viz_1['text'] = f"{(time.perf_counter_ns() - start_time)} мс"
-            return res
-        return wrapped
+    def insert_text_2(text):
+        text = text
+        return text_editor2.insert(1.0, text)
 
-    def time_of_function4(function):
-        def wrapped(*args):
-            start_time = time.perf_counter_ns()
-            res = function(*args)
-            time_viz_2['text'] = f"{(time.perf_counter_ns() - start_time)} мс"
-            return res
-        return wrapped
+    def get_text_1():
+        return text_editor1.get(1.0, END).upper()
 
-    @time_of_function3
-    def encode_vijn(text, keytext):
-        f = lambda arg: alp[(alp.index(arg[0]) + alp.index(arg[1]) % 33) % 33]
-        return ''.join(map(f, zip(text, cycle(keytext))))
+    def get_text_2():
+        return text_editor2.get(1.0, END).upper()
 
-    @time_of_function4
-    def decode_vijn(coded_text, keytext):
-        f = lambda arg: alp[alp.index(arg[0]) - alp.index(arg[1]) % 33]
-        return ''.join(map(f, zip(coded_text, cycle(keytext))))
+    def insert_text_3(text):
+        text = text
+        return text_editor3.insert(1.0, text)
 
+    affine_encrypted_text = affine_encrypt(get_text(), key)
+    affine_decrypted_text = affine_decrypt(get_text_2(), key)
 
-    @time_of_function1
-    def affine_decrypt(cipher, key):
-        return ''.join([chr(((modinv(key[0], 33) * (ord(c) - ord('А') - key[1]))
-                             % 33) + ord('А')) for c in cipher])
-    @time_of_function2
-    def affine_encrypt(text, key):
-        return ''.join([chr(((key[0] * (ord(t) - ord('А')) + key[1]) % 33)
-                            + ord('А')) for t in text.upper().replace(' ', '')])
+# Output data in vidget
+    insert_text_2(affine_encrypted_text)
+    insert_text_3(affine_decrypted_text)
 
-    out_en_viz['text'] = encode_vijn(b, c)
-    encode_viz = encode_vijn(b, c)
-    out_dec_viz['text'] = decode_vijn(encode_viz, c)
-    affine_encrypted_text = affine_encrypt(a, key)
-    Encrypt_output['text'] = affine_encrypted_text
-    Decrypted_output['text'] = affine_decrypt(affine_encrypted_text, key)
-
+# Drawing Gistograms
     txt_en_cez = list(affine_encrypted_text)
     n_bin1_cez = len(set(txt_en_cez))
-    s1 = plt.hist(txt_en_cez, bins=n_bin1_cez)
-    plt.rcParams['patch.force_edgecolor'] = True
-    plt.show()
-    txt_de_cez = list(affine_decrypt(affine_encrypted_text, key))
-    n_bin2_cez = len(set(txt_de_cez))
-    s2 = plt.hist(txt_de_cez, bins=n_bin2_cez)
-
+    s1 = plt.hist(txt_en_cez, bins=n_bin1_cez, density=True, align='mid')
+    plt.suptitle("Для зашифрованного")
+    plt.grid(which='major')
     plt.rcParams['patch.force_edgecolor'] = True
     plt.show()
 
-
-    txt_en_viz = list(encode_vijn(b, c))
-    n_bin1_viz = len(set(txt_en_viz))
-    v1 = plt.hist(txt_en_viz, bins=n_bin1_viz)
-    plt.rcParams['patch.force_edgecolor'] = True
-    plt.show()
-    txt_de_viz = list(decode_vijn(encode_viz, c))
-    n_bin2_viz = len(set(txt_de_viz))
-    v2 = plt.hist(txt_de_viz, bins=n_bin2_viz)
-
+    txt_dec_cez = list(get_text_1())
+    n_bin2_cez = len(set(txt_dec_cez))
+    s2 = plt.hist(txt_dec_cez, bins=n_bin2_cez, density=True, align='mid')
+    plt.suptitle("Для исходного")
+    plt.grid(which='major')
     plt.rcParams['patch.force_edgecolor'] = True
     plt.show()
 
-
-
-
-ok_button1.bind('<Button-1>', main)
-label_NAME_CEZ.grid(row=0, column = 1)
-label1.grid(row=1, column=1)
-entry1.grid(row=1, column=2)
-label2.grid(row=3, column=1)
-label2_1.grid(row=3, column=3)
-Encrypt_output.grid(row=3, column=2)
-label3.grid(row=4, column=1)
-label3_1.grid(row=4, column=3)
-Decrypted_output.grid(row=4, column=2)
-
-
-label_NAME_VIZ.grid(row=5, column=1)
-label_text_1.grid(row=6, column=1)
-entry_text_1.grid(row=6, column=2)
-label_text_2.grid(row = 7, column=1)
-entry_text_2.grid(row=7, column=2)
-en_text_1_viz.grid(row=6, column=3)
-out_en_viz.grid(row=6, column=4)
-time_viz_1.grid(row=6,column=5)
-dec_text_1_viz.grid(row=7, column=3)
-time_viz_2.grid(row=7, column= 5)
-out_dec_viz.grid(row=7, column=4)
-
-
-ok_button1.grid(row=10, column=1)
+# Drawing all elements
+original_text_label.grid(row=0, column=0)
+encrypted_text_label.grid(row=2, column=0)
+decrypted_text_label.grid(row=2, column=1)
+open_file_button.bind('<Button-1>', open_file)
+endec_button_affine.bind('<Button-1>', main)
+text_editor1.grid(row=1, column=0)
+text_editor2.grid(row=3,column=0)
+text_editor3.grid(row=3,column=1)
+open_file_button.grid(row=0, column=1)
+time_enc_chipper.grid(row=4, column=0)
+time_dec_chipper.grid(row=4, column=1)
+endec_button_affine.grid(row=5, column=0)
+tab_control.pack(expand=1, fill="both")
 root.mainloop()
