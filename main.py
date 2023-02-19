@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
+import time
 
 # Help Function
 def egcd(a, b):
@@ -24,17 +25,13 @@ def modinv(a, m):
 def open_file(event):
     filepath = filedialog.askopenfilename()
     if filepath != "":
-        with open(filepath,encoding='utf-8') as file:
+        with open(filepath, encoding='utf-8') as file:
             text = file.read()
             text_editor1.delete("1.0", END)
             text_editor1.insert("1.0", text)
             text_editor1.get(1.0, END)
 
-def affine_encrypt(text, key):
-    return ''.join([chr(((key[0] * (ord(t) - ord('А')) + key[1]) % 33) + ord('А')) for t in text.upper().replace(' ', '')])
 
-def affine_decrypt(cipher, key):
-    return ''.join([chr(((modinv(key[0], 33) * (ord(c) - ord('А') - key[1])) % 33) + ord('А')) for c in cipher])
 
 root = Tk()
 root.title("Лабораторная работа №2")
@@ -52,17 +49,46 @@ value_a = StringVar()
 original_text_label = Label(tab1, text="Исходный текст:")
 encrypted_text_label = Label(tab1, text="Зашифрованный текст:")
 decrypted_text_label = Label(tab1, text="Расшифрованный текст:")
+time_enc_chipper = Label(tab1, text= "Время зашифрования")
+time_dec_chipper = Label(tab1, text= "Время расшифрования")
 text_editor1 = Text(tab1)
-
 open_file_button = Button(tab1, text="Открыть файл",)
 endec_button_affine = Button(tab1, text="Выполнить")
 text_editor2 = Text(tab1)
 text_editor3 = Text(tab1)
 
+def time_of_function1(function):
+    def wrapped(*args):
+        start_time = time.perf_counter_ns()
+        res = function(*args)
+        time_enc_chipper['text'] = f"{(time.perf_counter_ns() - start_time)} нс"
+        return res
+
+    return wrapped
+
+def time_of_function2(function):
+    def wrapped(*args):
+        start_time = time.perf_counter_ns()
+        res = function(*args)
+        time_dec_chipper['text'] = f"{(time.perf_counter_ns() - start_time)} нс"
+        return res
+
+    return wrapped
+
+
+@time_of_function1
+def affine_encrypt(text, key):
+    return ''.join([chr(((key[0] * (ord(t) - ord('А')) + key[1]) % 33) + ord('А')) for t in text.upper().replace(' ', '')])
+@time_of_function2
+def affine_decrypt(cipher, key):
+    return ''.join([chr(((modinv(key[0], 33) * (ord(c) - ord('А') - key[1])) % 33) + ord('А')) for c in cipher])
+
 
 # Main Function
 def main(event):
     key = [7, 10]
+
+
     def get_text():
        return text_editor1.get(1.0, END).upper()
 
@@ -79,9 +105,11 @@ def main(event):
 
     affine_encrypted_text = affine_encrypt(get_text(), key)
     affine_decrypted_text = affine_decrypt(get_text_2(), key)
+
 # Output data in vidget
     insert_text_2(affine_encrypted_text)
     insert_text_3(affine_decrypted_text)
+
 # Drawing all elements
 original_text_label.grid(row=0, column=0)
 encrypted_text_label.grid(row=2, column=0)
@@ -92,6 +120,8 @@ text_editor1.grid(row=1, column=0)
 text_editor2.grid(row=3,column=0)
 text_editor3.grid(row=3,column=1)
 open_file_button.grid(row=0, column=2)
-endec_button_affine.grid(row=4, column=0)
+time_enc_chipper.grid(row=4, column=0)
+time_dec_chipper.grid(row=4, column=1)
+endec_button_affine.grid(row=5, column=0)
 tab_control.pack(expand=1, fill="both")
 root.mainloop()
