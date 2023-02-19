@@ -66,7 +66,7 @@ def time_of_function1(function):
     def wrapped(*args):
         start_time = time.perf_counter_ns()
         res = function(*args)
-        time_enc_chipper['text'] = f"{(time.perf_counter_ns() - start_time)} нс"
+        time_enc_chipper['text'] = f"{(time.perf_counter_ns() - start_time) / 10**6} мс"
         return res
 
     return wrapped
@@ -75,7 +75,7 @@ def time_of_function2(function):
     def wrapped(*args):
         start_time = time.perf_counter_ns()
         res = function(*args)
-        time_dec_chipper['text'] = f"{(time.perf_counter_ns() - start_time)} нс"
+        time_dec_chipper['text'] = f"{(time.perf_counter_ns() - start_time)/ 10 ** 6} мс"
         return res
 
     return wrapped
