@@ -30,7 +30,8 @@ def open_file(event):
     if filepath != "":
         with open(filepath, encoding='utf-8') as file:
             text = file.read().upper()
-            text = re.sub(r'[.,"\'-?:!;«»—]', '', text)
+            text = re.sub(r'[.,"\'-?:!;«»—\n]', '', text)
+            text = text.replace("Ё", "Е")
             text_editor1.delete("1.0", END)
             text_editor1.insert("1.0", text)
             text_editor1.get(1.0, END)
@@ -39,7 +40,7 @@ def open_file(event):
 
 root = Tk()
 root.title("Лабораторная работа №2")
-root.geometry("1500x900")
+root.geometry("1300x900")
 tab_control = ttk.Notebook(root)
 
 # first page Affine Chipper
@@ -118,12 +119,18 @@ def main(event):
 # Drawing Gistograms
     txt_en_cez = list(affine_encrypted_text)
     n_bin1_cez = len(set(txt_en_cez))
-    s1 = plt.hist(txt_en_cez, bins=n_bin1_cez)
+    s1 = plt.hist(txt_en_cez, bins=n_bin1_cez, density=True, align='mid')
+    plt.suptitle("Для зашифрованного")
+    plt.grid(which='major')
+    plt.rcParams['patch.force_edgecolor'] = True
     plt.show()
 
     txt_dec_cez = list(get_text_1())
     n_bin2_cez = len(set(txt_dec_cez))
-    s2 = plt.hist(txt_dec_cez, bins=n_bin2_cez)
+    s2 = plt.hist(txt_dec_cez, bins=n_bin2_cez, density=True, align='mid')
+    plt.suptitle("Для исходного")
+    plt.grid(which='major')
+    plt.rcParams['patch.force_edgecolor'] = True
     plt.show()
 
 # Drawing all elements
@@ -135,7 +142,7 @@ endec_button_affine.bind('<Button-1>', main)
 text_editor1.grid(row=1, column=0)
 text_editor2.grid(row=3,column=0)
 text_editor3.grid(row=3,column=1)
-open_file_button.grid(row=0, column=2)
+open_file_button.grid(row=0, column=1)
 time_enc_chipper.grid(row=4, column=0)
 time_dec_chipper.grid(row=4, column=1)
 endec_button_affine.grid(row=5, column=0)
