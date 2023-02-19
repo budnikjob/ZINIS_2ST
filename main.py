@@ -31,12 +31,14 @@ def open_file(event):
             text_editor1.get(1.0, END)
 
 def affine_encrypt(text, key):
-    return ''.join([chr(((key[0] * (ord(t) - ord('А')) + key[1]) % 33)
-                        + ord('А')) for t in text.upper().replace(' ', '')])
+    return ''.join([chr(((key[0] * (ord(t) - ord('А')) + key[1]) % 33) + ord('А')) for t in text.upper().replace(' ', '')])
+
+def affine_decrypt(cipher, key):
+    return ''.join([chr(((modinv(key[0], 33) * (ord(c) - ord('А') - key[1])) % 33) + ord('А')) for c in cipher])
 
 root = Tk()
 root.title("Лабораторная работа №2")
-root.geometry("1500x720")
+root.geometry("1500x900")
 tab_control = ttk.Notebook(root)
 
 # first page Affine Chipper
@@ -49,11 +51,13 @@ value_a = StringVar()
 # Add Element on Layer First Page
 original_text_label = Label(tab1, text="Исходный текст:")
 encrypted_text_label = Label(tab1, text="Зашифрованный текст:")
+decrypted_text_label = Label(tab1, text="Расшифрованный текст:")
 text_editor1 = Text(tab1)
 
 open_file_button = Button(tab1, text="Открыть файл",)
 endec_button_affine = Button(tab1, text="Выполнить")
 text_editor2 = Text(tab1)
+text_editor3 = Text(tab1)
 
 
 # Main Function
@@ -66,19 +70,28 @@ def main(event):
         text = text
         return text_editor2.insert(1.0, text)
 
+    def get_text_2():
+        return text_editor2.get(1.0, END).upper()
+
+    def insert_text_3(text):
+        text = text
+        return text_editor3.insert(1.0, text)
+
     affine_encrypted_text = affine_encrypt(get_text(), key)
-
-
+    affine_decrypted_text = affine_decrypt(get_text_2(), key)
 # Output data in vidget
     insert_text_2(affine_encrypted_text)
+    insert_text_3(affine_decrypted_text)
 # Drawing all elements
 original_text_label.grid(row=0, column=0)
-encrypted_text_label.grid(row=0, column=1)
+encrypted_text_label.grid(row=2, column=0)
+decrypted_text_label.grid(row=2, column=1)
 open_file_button.bind('<Button-1>', open_file)
 endec_button_affine.bind('<Button-1>', main)
 text_editor1.grid(row=1, column=0)
-text_editor2.grid(row=1,column=1)
+text_editor2.grid(row=3,column=0)
+text_editor3.grid(row=3,column=1)
 open_file_button.grid(row=0, column=2)
-endec_button_affine.grid(row=2, column=0)
+endec_button_affine.grid(row=4, column=0)
 tab_control.pack(expand=1, fill="both")
 root.mainloop()
