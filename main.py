@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
 import time
+from matplotlib import pyplot as plt
 
 # Help Function
 def egcd(a, b):
@@ -26,7 +27,7 @@ def open_file(event):
     filepath = filedialog.askopenfilename()
     if filepath != "":
         with open(filepath, encoding='utf-8') as file:
-            text = file.read()
+            text = file.read().upper()
             text_editor1.delete("1.0", END)
             text_editor1.insert("1.0", text)
             text_editor1.get(1.0, END)
@@ -87,14 +88,15 @@ def affine_decrypt(cipher, key):
 # Main Function
 def main(event):
     key = [7, 10]
-
-
     def get_text():
        return text_editor1.get(1.0, END).upper()
 
     def insert_text_2(text):
         text = text
         return text_editor2.insert(1.0, text)
+
+    def get_text_1():
+        return text_editor1.get(1.0, END).upper()
 
     def get_text_2():
         return text_editor2.get(1.0, END).upper()
@@ -109,6 +111,17 @@ def main(event):
 # Output data in vidget
     insert_text_2(affine_encrypted_text)
     insert_text_3(affine_decrypted_text)
+
+# Drawing Gistograms
+    txt_en_cez = list(affine_encrypted_text)
+    n_bin1_cez = len(set(txt_en_cez))
+    s1 = plt.hist(txt_en_cez, bins=n_bin1_cez)
+    plt.show()
+
+    txt_dec_cez = list(get_text_1())
+    n_bin2_cez = len(set(txt_dec_cez))
+    s2 = plt.hist(txt_dec_cez, bins=n_bin2_cez)
+    plt.show()
 
 # Drawing all elements
 original_text_label.grid(row=0, column=0)
